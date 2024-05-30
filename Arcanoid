@@ -1,0 +1,104 @@
+int paddleWidth = 100;
+int paddleHeight = 10;
+int brickWidth = 60;
+int brickHeight = 20;
+int rows = 5;
+int cols = 10;
+
+float paddleX, paddleY;
+float paddleSpeed = 7;
+
+float ballX, ballY, ballSpeedX, ballSpeedY;
+float ballSize = 15;
+
+boolean[][] bricks = new boolean[rows][cols];
+
+void setup() {
+  size(800, 600);
+  
+  paddleX = width / 2 - paddleWidth / 2;
+  paddleY = height - 50;
+  
+  ballX = width / 2;
+  ballY = height / 2;
+  ballSpeedX = 4;
+  ballSpeedY = -4;
+  
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      bricks[i][j] = true;
+    }
+  }
+}
+
+void draw() {
+  background(0);
+  
+  // Prostokąt
+  rect(paddleX, paddleY, paddleWidth, paddleHeight);
+  
+  // Piłka
+  ellipse(ballX, ballY, ballSize, ballSize);
+  
+  // Cegły
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (bricks[i][j]) {
+        float brickX = j * brickWidth;
+        float brickY = i * brickHeight;
+        rect(brickX, brickY, brickWidth, brickHeight);
+      }
+    }
+  }
+  
+  // Ruch piłki
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+  
+  // Kolizja piłki 
+  if (ballX <= 0 || ballX >= width - ballSize) {
+    ballSpeedX *= -1;
+  }
+  if (ballY <= 0) {
+    ballSpeedY *= -1;
+  }
+  
+  // Kolizja piłki z prostokątem
+  if (ballX + ballSize / 2 >= paddleX && ballX - ballSize / 2 <= paddleX + paddleWidth && ballY + ballSize / 2 >= paddleY && ballY - ballSize / 2 <= paddleY + paddleHeight) {
+    ballSpeedY *= -1;
+    ballY = paddleY - ballSize / 2;
+  }
+  
+  // Kolizja z cegłami
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (bricks[i][j]) {
+        float brickX = j * brickWidth;
+        float brickY = i * brickHeight;
+        if (ballX + ballSize / 2 >= brickX && ballX - ballSize / 2 <= brickX + brickWidth && ballY + ballSize / 2 >= brickY && ballY - ballSize / 2 <= brickY + brickHeight) {
+          ballSpeedY *= -1;
+          bricks[i][j] = false;
+          break;
+        }
+      }
+    }
+  }
+  
+  
+  if (ballY >= height) {
+    textSize(32);
+    fill(255);
+    text("Game Over", width / 2 - 80, height / 2);
+    noLoop();
+  }
+  
+  // Kontrola prostokąta
+  if (keyPressed) {
+    if (key == 'a' && paddleX > 0) {
+      paddleX -= paddleSpeed;
+    } 
+    if (key == 'd' && paddleX < width - paddleWidth) {
+      paddleX += paddleSpeed;
+    }
+  }
+}
