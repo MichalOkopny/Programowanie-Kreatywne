@@ -1,0 +1,100 @@
+int paddleWidth = 10;
+int paddleHeight = 100;
+int ballSize = 20;
+
+float paddle1X, paddle1Y, paddle2X, paddle2Y;
+float paddleSpeed = 5;
+
+float ballX, ballY, ballSpeedX, ballSpeedY;
+float speedIncreaseFactor = 1.05;
+
+int scorePlayer1 = 0;
+int scorePlayer2 = 0;
+
+void setup() {
+  size(800, 600);
+  
+  paddle1X = 20;
+  paddle1Y = height / 2 - paddleHeight / 2;
+  
+  paddle2X = width - 20 - paddleWidth;
+  paddle2Y = height / 2 - paddleHeight / 2;
+  
+  resetBall();
+}
+
+void draw() {
+  background(0);
+  
+  // Prostokąt
+  rect(paddle1X, paddle1Y, paddleWidth, paddleHeight);
+  rect(paddle2X, paddle2Y, paddleWidth, paddleHeight);
+  
+  // Piłka
+  ellipse(ballX, ballY, ballSize, ballSize);
+  
+  // Ruch
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+  
+  // Ball collision with top and bottom walls
+  if (ballY <= 0 || ballY >= height - ballSize) {
+    ballSpeedY *= -1;
+  }
+  
+  // kolizja z prostokątem
+  if (ballX <= paddle1X + paddleWidth && ballY + ballSize / 2 >= paddle1Y && ballY - ballSize / 2 <= paddle1Y + paddleHeight) {
+    ballSpeedX *= -1;
+    ballX = paddle1X + paddleWidth;
+    increaseBallSpeed();
+  }
+  if (ballX >= paddle2X - ballSize && ballY + ballSize / 2 >= paddle2Y && ballY - ballSize / 2 <= paddle2Y + paddleHeight) {
+    ballSpeedX *= -1;
+    ballX = paddle2X - ballSize;
+    increaseBallSpeed();
+  }
+  
+  // Czy punkt zdobyty
+  if (ballX <= 0) {
+    scorePlayer2++;
+    resetBall();
+  }
+  if (ballX >= width - ballSize) {
+    scorePlayer1++;
+    resetBall();
+  }
+  
+  // Punkty
+  textSize(32);
+  fill(255);
+  text(scorePlayer1, width / 4, 50);
+  text(scorePlayer2, 3 * width / 4, 50);
+  
+  // Kontrola
+  if (keyPressed) {
+    if (key == 'w' && paddle1Y > 0) {
+      paddle1Y -= paddleSpeed;
+    } 
+    if (key == 's' && paddle1Y < height - paddleHeight) {
+      paddle1Y += paddleSpeed;
+    }
+    if (keyCode == UP && paddle2Y > 0) {
+      paddle2Y -= paddleSpeed;
+    } 
+    if (keyCode == DOWN && paddle2Y < height - paddleHeight) {
+      paddle2Y += paddleSpeed;
+    }
+  }
+}
+// Reset piłki
+void resetBall() {
+  ballX = width / 2;
+  ballY = height / 2;
+  ballSpeedX = random(3, 5) * (random(1) < 0.5 ? 1 : -1);
+  ballSpeedY = random(2, 4) * (random(1) < 0.5 ? 1 : -1);
+}
+// po każdym odbiciu połka podwaja prędkość
+void increaseBallSpeed() {
+  ballSpeedX *= speedIncreaseFactor;
+  ballSpeedY *= speedIncreaseFactor;
+}
